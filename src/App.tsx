@@ -1,49 +1,48 @@
-import { useEffect, useState } from 'react'
-import { supabase } from './lib/supabase'
-
-interface Site {
-  id: string
-  name: string
-  location: string
-  industry: string
-}
+import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
+import { Layout } from "./components/Layout";
 
 function App() {
-  const [sites, setSites] = useState<Site[]>([])
-  const [loading, setLoading] = useState(true)
+  interface Site {
+    id: number;
+    name: string;
+    industry: string;
+    location: string;
+  }
+  const [sites, setSites] = useState<Site[]>([]);
 
   useEffect(() => {
     async function fetchSites() {
-      const { data, error } = await supabase
-        .from('sites')
-        .select('*')
-      
-      if (error) console.error('Error fetching:', error)
-      else setSites(data || [])
-      setLoading(false)
+      const { data } = await supabase.from("sites").select("*");
+      setSites(data || []);
     }
-
-    fetchSites()
-  }, [])
+    fetchSites();
+  }, []);
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold text-emerald-600 mb-4">CarbonLens Dashboard</h1>
-      
-      {loading ? (
-        <p>Connecting to database...</p>
-      ) : (
-        <div className="grid gap-4">
-          {sites.map(site => (
-            <div key={site.id} className="p-4 border rounded-lg shadow-sm">
-              <h2 className="font-semibold text-xl">{site.name}</h2>
-              <p className="text-gray-500">{site.location} • {site.industry}</p>
+    <Layout>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sites.map((site) => (
+          <div
+            key={site.id}
+            className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="font-bold text-lg text-slate-800">{site.name}</h2>
+              <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded uppercase">
+                Active
+              </span>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+            <p className="text-slate-500 text-sm mb-2">{site.industry}</p>
+            <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+              <span>{site.location}</span>
+              <span>Updated 2h ago</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Layout>
+  );
 }
 
-export default App
+export default App;
